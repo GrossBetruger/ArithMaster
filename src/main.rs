@@ -32,7 +32,7 @@ const PRAISES: [&str; NUM_OF_PRAISES] = [
     "Is there a nobel prize for arithmetic?",
     "to say you're a bigshot would be such an understatement...",
     "Godlike skills !@!",
-    "any futher praise would be an insult for you immanence",
+    "any futher praise would be an insult to your immanence",
 ];
 
 enum Exercise {
