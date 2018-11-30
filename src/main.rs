@@ -6,7 +6,7 @@ use std::num::ParseIntError;
 
 const NUM_OF_PRAISES: usize = 24;
 
-const STREAK_CONSTANT: u8 = 1;
+const STREAK_CONSTANT: u8 = 5;
 
 const UPDATE_DIFFICULTY: &str = "\nupdating difficulty to: {:?}\n";
 
