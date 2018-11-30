@@ -201,7 +201,7 @@ mod tests {
     }
 
     #[test]
-    fn substraction() {
+    fn subtraction() {
         for _ in 0..1000 {
             let (a, b, res) = create_subtraction_exercise(-1000, 1001);
             assert!(a - b == res);
