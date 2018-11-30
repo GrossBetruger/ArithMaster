@@ -8,8 +8,6 @@ const NUM_OF_PRAISES: usize = 24;
 
 const STREAK_CONSTANT: u8 = 5;
 
-const UPDATE_DIFFICULTY: &str = "\nupdating difficulty to: {:?}\n";
-
 const PRAISES: [&str; NUM_OF_PRAISES] = [
     "not bad!",
     "not too shabby...",
@@ -121,7 +119,6 @@ fn ask_question(exercise_type: &Exercise, difficulty: &Difficulty) -> bool {
 
         }
     }
-    false
 }
 
 fn ask_forever() {
@@ -131,10 +128,6 @@ fn ask_forever() {
     let mut current_question_type = Exercise::Addition;
 
     loop {
-        match generate_random(0, 2) {
-            0 => {current_question_type = Exercise::Addition}
-            _ => {current_question_type = Exercise::Subtraction}
-        }
         match ask_question(&current_question_type, &current_difficulty) {
             true => {
                 streak += 1;
@@ -170,6 +163,11 @@ fn ask_forever() {
                 println!("\nupdating difficulty to: {:?}\n", new_difficulty);
                 current_difficulty = new_difficulty;
             }
+        }
+//        change exercise type on random
+        match generate_random(0, 2) {
+            0 => {current_question_type = Exercise::Addition}
+            _ => {current_question_type = Exercise::Subtraction}
         }
     }
 }

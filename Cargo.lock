@@ -1,5 +1,5 @@
 [[package]]
-name = "ArithMaster"
+name = "arithmaster"
 version = "0.1.0"
 dependencies = [
  "rand 0.6.1 (registry+https://github.com/rust-lang/crates.io-index)",
