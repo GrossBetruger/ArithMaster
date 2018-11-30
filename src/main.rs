@@ -185,9 +185,27 @@ mod tests {
 
     #[test]
     fn random_generator() {
-        for _ in 1..1000 {
+        for _ in 0..1000 {
             let random = generate_random(-3, 3);
             assert!(random < 3 && random > -4);
         }
+    }
+
+    #[test]
+    fn addition() {
+        for _ in 0..1000 {
+            let (a, b, res) = create_addition_exercise(-1000, 1001);
+            assert!(a + b == res);
+        }
+
+    }
+
+    #[test]
+    fn substraction() {
+        for _ in 0..1000 {
+            let (a, b, res) = create_subtraction_exercise(-1000, 1001);
+            assert!(a - b == res);
+        }
+
     }
 }
