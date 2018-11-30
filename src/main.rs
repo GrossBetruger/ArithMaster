@@ -3,6 +3,21 @@ extern crate rand;
 use rand::Rng;
 use std::io;
 
+const NUM_OF_PRAISES: usize = 24;
+
+const STREAK_CONSTANT: u8 = 5;
+
+const PRAISES: [&str; NUM_OF_PRAISES] = ["not bad!", "not too shabby...", "I'm starting to get impressed",
+                           "I'm impressed!", "Well done there!", "Wow!", "You're on fire!",
+                           "did you consider engineering?", "gotta love this accuracy!",
+                           "you're unstopable!!", "HAVE MERCY!", "is this even POSSIBLE?",
+                           "wtf! another hit?", "that's some math snipping", "you're possesed by deamons!",
+                           "I officially quit", "You make me look bad, and I'm a COMPUTER",
+                           "I'm your biggest fan", "MARRY ME!", "can you be more robust?!",
+                           "Is there a nobel prize for arithmetic?", "to say you're a bigshot would be such an understatement...",
+                           "Godlike skills !@!",
+                           "any futher praise would be an insult for you immanence"];
+
 enum Exercise {
     Addition
 }
@@ -29,7 +44,7 @@ fn ask_question(exercise_type: Exercise, difficulty: Difficulty) -> bool {
                 Difficulty::Easy => {
                     let (operand_a, operand_b, solution) =
                         create_addition_exercise(-10, 10);
-                    println!("what is {} + {}?", operand_a, operand_b);
+                    println!("what is ({}) + ({})?", operand_a, operand_b);
 
                     let mut answer = String::new();
                         io::stdin().read_line(&mut answer)
@@ -44,7 +59,10 @@ fn ask_question(exercise_type: Exercise, difficulty: Difficulty) -> bool {
                         else { println!("kinda wrong...")}
 
                     }
-                    else { return ask_question(exercise_type, difficulty); }
+                    else {
+                        println!("I don't speak that language...");
+                        return ask_question(exercise_type, difficulty);
+                    }
 
                 }
             }
@@ -57,16 +75,24 @@ fn ask_question(exercise_type: Exercise, difficulty: Difficulty) -> bool {
 
 fn ask_forever() {
     let mut streak = 0;
+    let mut praise_counter= 0;
     loop {
         match ask_question(Exercise::Addition, Difficulty::Easy) {
             true => {
                     streak += 1;
-                    if streak % 5 == 0 {
-                        let praise = "not bad!";
-                        println!("{} in a row! {}", streak, praise);
+                    if streak % STREAK_CONSTANT == 0 {
+                        let praise = PRAISES[praise_counter];
+                        if praise_counter < NUM_OF_PRAISES - 1 {
+                            praise_counter += 1;
+                        }
+
+                        println!("\n{} in a row! {}\n", streak, praise);
                     }
                 }
-            false => {streak = 0}
+            false => {
+                streak = 0;
+                praise_counter = 0;
+            }
         }
     }
 }
