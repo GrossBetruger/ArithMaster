@@ -39,6 +39,7 @@ const PRAISES: [&str; NUM_OF_PRAISES] = [
 
 enum Exercise {
     Addition,
+    Subtraction
 }
 
 #[derive(Debug)]
@@ -58,13 +59,21 @@ fn create_addition_exercise(min: i32, max: i32) -> (i32, i32, i32) {
     return (a, b, a + b);
 }
 
+fn create_subtraction_exercise(min: i32, max: i32) -> (i32, i32, i32) {
+    let a = generate_random(min, max);
+    let b = generate_random(min, max);
+    return (a, b, a - b);
+}
+
+
 fn interact_with_user(
+    operand: &str,
     min: i32,
     max: i32,
     exercise: &Fn(i32, i32) -> (i32, i32, i32),
 ) -> Result<bool, ParseIntError> {
     let (operand_a, operand_b, solution) = exercise(min, max);
-    println!("what is ({}) + ({})?", operand_a, operand_b);
+    println!("what is ({}) {} ({})?", operand_a, operand, operand_b);
 
     let mut answer = String::new();
     io::stdin()
@@ -89,32 +98,28 @@ fn interact_with_user(
     }
 }
 
-fn ask_question(exercise_type: Exercise, difficulty: &Difficulty) -> bool {
+fn ask_question(exercise_type: &Exercise, difficulty: &Difficulty) -> bool {
+    let (min, max) = match difficulty {
+        Difficulty::Easy => (-10, 11),
+        Difficulty::Medium => (-50, 51),
+        Difficulty::Hard => (-400, 401)
+    };
     match exercise_type {
-        Exercise::Addition => match difficulty {
-            Difficulty::Easy => {
-                if let Ok(result) = interact_with_user(-10, 11, &create_addition_exercise) {
-                    return result;
-                } else {
-                    return ask_question(exercise_type, difficulty);
-                }
-            }
-
-            Difficulty::Medium => {
-                if let Ok(result) = interact_with_user(-50, 51, &create_addition_exercise) {
-                    return result;
-                } else {
-                    return ask_question(exercise_type, difficulty);
-                }
-            },
-            Difficulty::Hard => {
-                if let Ok(result) = interact_with_user(-400, 401, &create_addition_exercise) {
-                    return result;
-                } else {
-                    return ask_question(exercise_type, difficulty);
-                }
+        Exercise::Addition => {
+            if let Ok(result) = interact_with_user("+", min, max, &create_addition_exercise) {
+                return result;
+            } else {
+                return ask_question(exercise_type, difficulty);
             }
         },
+        Exercise::Subtraction => {
+            if let Ok(result) = interact_with_user("-", min, max, &create_subtraction_exercise) {
+                return result;
+            } else {
+                return ask_question(exercise_type, difficulty);
+            }
+
+        }
     }
     false
 }
@@ -123,10 +128,14 @@ fn ask_forever() {
     let mut streak = 0;
     let mut praise_counter = 0;
     let mut current_difficulty = Difficulty::Easy;
+    let mut current_question_type = Exercise::Addition;
 
     loop {
-
-        match ask_question(Exercise::Addition, &current_difficulty) {
+        match generate_random(0, 2) {
+            0 => {current_question_type = Exercise::Addition}
+            _ => {current_question_type = Exercise::Subtraction}
+        }
+        match ask_question(&current_question_type, &current_difficulty) {
             true => {
                 streak += 1;
                 if streak % STREAK_CONSTANT == 0 {
