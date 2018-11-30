@@ -2,6 +2,8 @@ extern crate rand;
 
 use rand::Rng;
 use std::io;
+use std::num::ParseIntError;
+
 
 const NUM_OF_PRAISES: usize = 24;
 
@@ -37,30 +39,43 @@ fn create_addition_exercise(min: i32, max: i32) -> (i32, i32, i32){
     return (a, b, a + b)
 }
 
+fn interact_with_user(min: i32, max: i32, exercise: &Fn(i32, i32) -> (i32, i32, i32)) -> Result<bool, ParseIntError> {
+
+    let (operand_a, operand_b, solution) =
+                        exercise(min, max);
+    println!("what is ({}) + ({})?", operand_a, operand_b);
+
+    let mut answer = String::new();
+        io::stdin().read_line(&mut answer)
+            .expect("failed to read your answer");
+
+    let input = answer.trim().parse::<i32>();
+    match input {
+        Ok(num) => {
+            if num == solution {
+                println!("very good!");
+                return Ok(true);
+            } else {
+                println!("kinda wrong...");
+                return Ok(false)
+            }
+        },
+        Err(parse_int_err) => {
+            println!("I don't speak that language...");
+            Err(parse_int_err)
+        }
+    }
+}
+
 fn ask_question(exercise_type: Exercise, difficulty: Difficulty) -> bool {
     match exercise_type {
         Exercise::Addition => {
             match difficulty {
                 Difficulty::Easy => {
-                    let (operand_a, operand_b, solution) =
-                        create_addition_exercise(-10, 10);
-                    println!("what is ({}) + ({})?", operand_a, operand_b);
-
-                    let mut answer = String::new();
-                        io::stdin().read_line(&mut answer)
-                            .expect("failed to read your answer");
-
-                    let input = answer.trim().parse::<i32>();
-                    if let Ok(num) = input {
-                        if num == solution {
-                            println!("very good!");
-                            return true;
-                        }
-                        else { println!("kinda wrong...")}
-
+                    if let Ok(result) = interact_with_user(-10, 10, &create_addition_exercise) {
+                        return result;
                     }
                     else {
-                        println!("I don't speak that language...");
                         return ask_question(exercise_type, difficulty);
                     }
 
