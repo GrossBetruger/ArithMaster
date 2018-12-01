@@ -237,7 +237,7 @@ fn ask_forever() {
                 praise_counter = 0;
                 let new_difficulty = Difficulty::Easy;
                 print_spaced(&warn(&format!(
-                    "updating difficulty to: \u{2620} {:?} \u{2620}️️",
+                    "updating difficulty to: {:?}️️",
                     new_difficulty
                 )));
                 current_difficulty = new_difficulty;
