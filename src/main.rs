@@ -253,15 +253,13 @@ fn ask_forever() {
 }
 
 fn main() {
+//    set stdout to colored (for windows systems)
     let mut stdout = StandardStream::stdout(ColorChoice::Always);
     stdout.set_color(ColorSpec::new().set_fg(Some(Color::Green))).unwrap();
-    writeln!(&mut stdout, "green text!").unwrap();
+    writeln!(&mut stdout, "hello there!\n").unwrap();
     stdout.set_color(ColorSpec::new().set_fg(Some(Color::White))).unwrap();
 
-//    if cfg!(target_os="windows") {
-//        // disable colored text output on Windows as the Windows terminals do not support it yet
-//        colored::control::set_override(false);
-//    }
+
     ask_forever();
 }
 
