@@ -1,3 +1,4 @@
+extern crate termcolor;
 extern crate colored;
 extern crate rand;
 
@@ -5,6 +6,9 @@ use colored::*;
 use rand::Rng;
 use std::io;
 use std::num::ParseIntError;
+use std::io::Write;
+use termcolor::{Color, ColorChoice, ColorSpec, StandardStream, WriteColor};
+
 
 const NUM_OF_PRAISES: usize = 24;
 
@@ -249,6 +253,15 @@ fn ask_forever() {
 }
 
 fn main() {
+    let mut stdout = StandardStream::stdout(ColorChoice::Always);
+    stdout.set_color(ColorSpec::new().set_fg(Some(Color::Green))).unwrap();
+    writeln!(&mut stdout, "green text!").unwrap();
+    stdout.set_color(ColorSpec::new().set_fg(Some(Color::White))).unwrap();
+
+//    if cfg!(target_os="windows") {
+//        // disable colored text output on Windows as the Windows terminals do not support it yet
+//        colored::control::set_override(false);
+//    }
     ask_forever();
 }
 
