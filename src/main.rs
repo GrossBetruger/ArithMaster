@@ -1,10 +1,14 @@
 extern crate rand;
+extern crate colored;
 
+use colored::*;
 use rand::Rng;
 use std::io;
 use std::num::ParseIntError;
 
 const NUM_OF_PRAISES: usize = 24;
+
+const SUPER_PRAISES_THRESHOLD: u8 = 45;
 
 const STREAK_CONSTANT: u8 = 5;
 
@@ -70,6 +74,29 @@ fn create_multiplication_exercise(min: i32, max: i32) -> (i32, i32, i32) {
     return (a, b, a * b);
 }
 
+fn print_spaced(printable: &str) {
+    println!("\n{}\n", printable)
+}
+
+fn warn(printable: &str) -> String {
+    format!("{}", printable.yellow())
+}
+
+fn shout(printable: &str) -> String {
+    format!("{}", printable.red())
+}
+
+fn say_minor_praise(printable: &str) -> String {
+    format!("{}", printable.green())
+}
+
+fn say_praise(printable: &str) -> String {
+    format!("{}", printable.bright_magenta())
+}
+
+fn say_super_praise(printable: &str) -> String {
+    format!("{}", printable.purple())
+}
 
 fn interact_with_user(
     operand: &str,
@@ -89,36 +116,45 @@ fn interact_with_user(
     match input {
         Ok(num) => {
             if num == solution {
-                println!("very good!");
+                print_spaced(&say_minor_praise("very good!"));
                 return Ok(true);
             } else {
-                println!("kinda wrong...");
+                print_spaced(&format!("{} it's more like: {}",
+                                      shout("kinda wrong..."),
+                         solution.to_string().yellow()));
                 return Ok(false);
             }
         }
         Err(parse_int_err) => {
-            println!("I don't speak that language...");
+            print_spaced(&warn("I don't speak that language"));
             Err(parse_int_err)
         }
     }
 }
 
 fn ask_question(exercise_type: &Exercise, difficulty: &Difficulty) -> bool {
-    let (min, max) = match difficulty {
+    let (add_sub_min, add_sub_max) = match difficulty {
         Difficulty::Easy => (-10, 11),
         Difficulty::Medium => (-50, 51),
         Difficulty::Hard => (-400, 401)
     };
+
+    let (mul_div_min, mul_div_max) = match difficulty {
+        Difficulty::Easy => (-10, 11),
+        Difficulty::Medium => (-25, 26),
+        Difficulty::Hard => (-125, 126)
+    };
+
     match exercise_type {
         Exercise::Addition => {
-            if let Ok(result) = interact_with_user("+", min, max, &create_addition_exercise) {
+            if let Ok(result) = interact_with_user("+", add_sub_min, add_sub_max, &create_addition_exercise) {
                 return result;
             } else {
                 return ask_question(exercise_type, difficulty);
             }
         },
         Exercise::Subtraction => {
-            if let Ok(result) = interact_with_user("-", min, max, &create_subtraction_exercise) {
+            if let Ok(result) = interact_with_user("-", add_sub_min, add_sub_max, &create_subtraction_exercise) {
                 return result;
             } else {
                 return ask_question(exercise_type, difficulty);
@@ -126,7 +162,7 @@ fn ask_question(exercise_type: &Exercise, difficulty: &Difficulty) -> bool {
 
         },
             Exercise::Multiplication => {
-            if let Ok(result) = interact_with_user("*", min, max, &create_multiplication_exercise) {
+            if let Ok(result) = interact_with_user("*", mul_div_min, mul_div_max, &create_multiplication_exercise) {
                 return result;
             } else {
                 return ask_question(exercise_type, difficulty);
@@ -152,7 +188,13 @@ fn ask_forever() {
                         praise_counter += 1;
                     }
 
-                    println!("\n{} in a row! {}\n", streak, praise);
+                    let praise = format!("\n{} in a row! {}\n", streak, praise);
+                    match streak < SUPER_PRAISES_THRESHOLD {
+                        true => print_spaced(&say_praise(&praise)),
+                        _ => print_spaced(&say_super_praise(&praise))
+                    }
+
+                    format!("\n{} in a row! {}\n", streak, praise);
                 }
 
                 if streak % (STREAK_CONSTANT * 2) == 0 {
