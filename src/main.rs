@@ -37,7 +37,8 @@ const PRAISES: [&str; NUM_OF_PRAISES] = [
 
 enum Exercise {
     Addition,
-    Subtraction
+    Subtraction,
+    Multiplication
 }
 
 #[derive(Debug)]
@@ -61,6 +62,12 @@ fn create_subtraction_exercise(min: i32, max: i32) -> (i32, i32, i32) {
     let a = generate_random(min, max);
     let b = generate_random(min, max);
     return (a, b, a - b);
+}
+
+fn create_multiplication_exercise(min: i32, max: i32) -> (i32, i32, i32) {
+    let a = generate_random(min, max);
+    let b = generate_random(min, max);
+    return (a, b, a * b);
 }
 
 
@@ -117,6 +124,14 @@ fn ask_question(exercise_type: &Exercise, difficulty: &Difficulty) -> bool {
                 return ask_question(exercise_type, difficulty);
             }
 
+        },
+            Exercise::Multiplication => {
+            if let Ok(result) = interact_with_user("*", min, max, &create_multiplication_exercise) {
+                return result;
+            } else {
+                return ask_question(exercise_type, difficulty);
+            }
+
         }
     }
 }
@@ -165,8 +180,9 @@ fn ask_forever() {
             }
         }
 //        change exercise type on random
-        match generate_random(0, 2) {
+        match generate_random(0, 3) {
             0 => {current_question_type = Exercise::Addition}
+            1 => {current_question_type = Exercise::Multiplication}
             _ => {current_question_type = Exercise::Subtraction}
         }
     }
