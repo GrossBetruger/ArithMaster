@@ -78,6 +78,16 @@ fn create_multiplication_exercise(min: i32, max: i32) -> (i32, i32, i32) {
     return (a, b, a * b);
 }
 
+fn format_superscript(base: i32, exponent: i32) -> String {
+    match exponent {
+        2 => {return format!("{}{}", base, "\u{00b2}")},
+        3 => {return format!("{}{}", base, "\u{00b3}")}
+        _ => {}
+
+    }
+    "nothing".into()
+}
+
 fn print_spaced(printable: &str) {
     println!("\n{}\n", printable)
 }
@@ -259,6 +269,10 @@ fn main() {
     writeln!(&mut stdout, "hello there!\n").unwrap();
     stdout.set_color(ColorSpec::new().set_fg(Some(Color::White))).unwrap();
 
+    println!("{}", format_superscript(10, 2));
+    println!("{}", format_superscript(9, 3));
+    println!("{}", format_superscript(5, 4));
+
 
     ask_forever();
 }
@@ -298,5 +312,13 @@ mod tests {
             let (a, b, res) = create_multiplication_exercise(-1000, 1001);
             assert_eq!(a * b, res);
         }
+    }
+
+    #[test]
+    fn superscript() {
+        println!("x\u{00b9}, 2\u{00b3} 4\u{02075} ");
+        println!("{}", format_superscript(10, 2));
+        println!("{}", format_superscript(9, 3));
+        println!("{}", format_superscript(5, 4));
     }
 }
