@@ -280,7 +280,7 @@ mod tests {
     fn addition() {
         for _ in 0..1000 {
             let (a, b, res) = create_addition_exercise(-1000, 1001);
-            assert!(a + b == res);
+            assert_eq!(a + b, res);
         }
     }
 
@@ -288,7 +288,15 @@ mod tests {
     fn subtraction() {
         for _ in 0..1000 {
             let (a, b, res) = create_subtraction_exercise(-1000, 1001);
-            assert!(a - b == res);
+            assert_eq!(a - b, res);
+        }
+    }
+
+    #[test]
+    fn multiplication() {
+        for _ in 0..1000 {
+            let (a, b, res) = create_multiplication_exercise(-1000, 1001);
+            assert_eq!(a * b, res);
         }
     }
 }
