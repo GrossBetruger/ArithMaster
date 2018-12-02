@@ -47,6 +47,7 @@ enum Exercise {
     Addition,
     Subtraction,
     Multiplication,
+    Exponentiation,
 }
 
 #[derive(Debug)]
@@ -78,10 +79,24 @@ fn create_multiplication_exercise(min: i32, max: i32) -> (i32, i32, i32) {
     return (a, b, a * b);
 }
 
+fn create_exponentiation_exercise(min: i32, max: i32) -> (i32, i32, i32) {
+    let a = generate_random(0, 11);
+    let e = generate_random(min, max).abs();
+    return (a, e, a.pow(e as u32));
+}
+
 fn format_superscript(base: i32, exponent: i32) -> String {
     match exponent {
+        0 => {return format!("{}{}", base, "\u{02070}")},
+        1 => {return format!("{}{}", base, "\u{00b9}")},
         2 => {return format!("{}{}", base, "\u{00b2}")},
-        3 => {return format!("{}{}", base, "\u{00b3}")}
+        3 => {return format!("{}{}", base, "\u{00b3}")},
+        4 => {return format!("{}{}", base, "\u{02074}")},
+        5 => {return format!("{}{}", base, "\u{02075}")},
+        6 => {return format!("{}{}", base, "\u{02076}")},
+        7 => {return format!("{}{}", base, "\u{02077}")},
+        8 => {return format!("{}{}", base, "\u{02078}")},
+        9 => {return format!("{}{}", base, "\u{02079}")},
         _ => {}
 
     }
@@ -112,15 +127,22 @@ fn say_super_praise(printable: &str) -> String {
     format!("{}", printable.purple())
 }
 
+fn format_question(operation: &str, operand_a: i32, operand_b: i32) -> String {
+    match operation {
+        "^" => {format!("what is {}?", format_superscript(operand_a, operand_b))}
+        _ => format!("what is ({}) {} ({})?", operand_a, operation, operand_b)
+    }
+
+}
+
 fn interact_with_user(
-    operand: &str,
+    operation: &str,
     min: i32,
     max: i32,
     exercise: &Fn(i32, i32) -> (i32, i32, i32),
 ) -> Result<bool, ParseIntError> {
     let (operand_a, operand_b, solution) = exercise(min, max);
-    println!("what is ({}) {} ({})?", operand_a, operand, operand_b);
-
+    println!("{}", format_question(operation, operand_a, operand_b));
     let mut answer = String::new();
     io::stdin()
         .read_line(&mut answer)
@@ -161,6 +183,12 @@ fn ask_question(exercise_type: &Exercise, difficulty: &Difficulty) -> bool {
         Difficulty::Hard => (-125, 126),
     };
 
+    let (exp_min, exp_max) = match difficulty {
+        Difficulty::Easy => (0, 3),
+        Difficulty::Medium => (3, 6),
+        Difficulty::Hard => (6, 8),
+    };
+
     match exercise_type {
         Exercise::Addition => {
             if let Ok(result) =
@@ -186,6 +214,18 @@ fn ask_question(exercise_type: &Exercise, difficulty: &Difficulty) -> bool {
                 mul_div_min,
                 mul_div_max,
                 &create_multiplication_exercise,
+            ) {
+                return result;
+            } else {
+                return ask_question(exercise_type, difficulty);
+            }
+        }
+        Exercise::Exponentiation=> {
+            if let Ok(result) = interact_with_user(
+                "^",
+                exp_min,
+                exp_max,
+                &create_exponentiation_exercise,
             ) {
                 return result;
             } else {
@@ -254,9 +294,10 @@ fn ask_forever() {
             }
         }
         //        change exercise type on random
-        match generate_random(0, 3) {
+        match generate_random(0, 4) {
             0 => current_question_type = Exercise::Addition,
             1 => current_question_type = Exercise::Multiplication,
+            2 => current_question_type = Exercise::Exponentiation,
             _ => current_question_type = Exercise::Subtraction,
         }
     }
@@ -268,12 +309,7 @@ fn main() {
     stdout.set_color(ColorSpec::new().set_fg(Some(Color::Green))).unwrap();
     writeln!(&mut stdout, "hello there!\n").unwrap();
     stdout.set_color(ColorSpec::new().set_fg(Some(Color::White))).unwrap();
-
-    println!("{}", format_superscript(10, 2));
-    println!("{}", format_superscript(9, 3));
-    println!("{}", format_superscript(5, 4));
-
-
+    
     ask_forever();
 }
 
@@ -316,9 +352,17 @@ mod tests {
 
     #[test]
     fn superscript() {
-        println!("x\u{00b9}, 2\u{00b3} 4\u{02075} ");
+        println!("x\u{00b9}, 2\u{00b3} 4\u{02075}");
+        println!("{}", format_superscript(10, 0));
+        println!("{}", format_superscript(10, 1));
         println!("{}", format_superscript(10, 2));
-        println!("{}", format_superscript(9, 3));
-        println!("{}", format_superscript(5, 4));
+        println!("{}", format_superscript(10, 3));
+        println!("{}", format_superscript(10, 4));
+        println!("{}", format_superscript(10, 5));
+        println!("{}", format_superscript(10, 6));
+        println!("{}", format_superscript(10, 7));
+        println!("{}", format_superscript(10, 8));
+        println!("{}", format_superscript(10, 9));
+
     }
 }
