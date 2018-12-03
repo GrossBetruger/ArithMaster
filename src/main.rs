@@ -8,6 +8,8 @@ use std::io;
 use std::num::ParseIntError;
 use std::io::Write;
 use termcolor::{Color, ColorChoice, ColorSpec, StandardStream, WriteColor};
+use std::io::BufRead;
+use std::io::BufReader;
 
 
 const NUM_OF_PRAISES: usize = 24;
@@ -135,6 +137,16 @@ fn format_question(operation: &str, operand_a: i32, operand_b: i32) -> String {
 
 }
 
+fn read_user_answer<R: BufRead>(mut reader: R) -> Result<i32, ParseIntError> {
+//    let mut answer = String::new();
+    let mut answer = vec![];
+    reader
+        .read_until(0xa, &mut answer)
+        .expect("failed to read your answer");
+    String::from_utf8_lossy(&answer).trim().parse::<i32>()
+}
+
+
 fn interact_with_user(
     operation: &str,
     min: i32,
@@ -143,12 +155,9 @@ fn interact_with_user(
 ) -> Result<bool, ParseIntError> {
     let (operand_a, operand_b, solution) = exercise(min, max);
     println!("{}", format_question(operation, operand_a, operand_b));
-    let mut answer = String::new();
-    io::stdin()
-        .read_line(&mut answer)
-        .expect("failed to read your answer");
 
-    let input = answer.trim().parse::<i32>();
+    let reader = BufReader::new(io::stdin());
+    let input = read_user_answer(reader);
     match input {
         Ok(num) => {
             if num == solution {
@@ -196,7 +205,7 @@ fn ask_question(exercise_type: &Exercise, difficulty: &Difficulty) -> bool {
             {
                 return result;
             } else {
-                return ask_question(exercise_type, difficulty);
+                return false //ask_question(exercise_type, difficulty);
             }
         }
         Exercise::Subtraction => {
@@ -205,7 +214,7 @@ fn ask_question(exercise_type: &Exercise, difficulty: &Difficulty) -> bool {
             {
                 return result;
             } else {
-                return ask_question(exercise_type, difficulty);
+                return false //ask_question(exercise_type, difficulty);
             }
         }
         Exercise::Multiplication => {
@@ -217,7 +226,7 @@ fn ask_question(exercise_type: &Exercise, difficulty: &Difficulty) -> bool {
             ) {
                 return result;
             } else {
-                return ask_question(exercise_type, difficulty);
+                return false // ask_question(exercise_type, difficulty);
             }
         }
         Exercise::Exponentiation=> {
@@ -229,7 +238,7 @@ fn ask_question(exercise_type: &Exercise, difficulty: &Difficulty) -> bool {
             ) {
                 return result;
             } else {
-                return ask_question(exercise_type, difficulty);
+                return false//ask_question(exercise_type, difficulty);
             }
         }
     }
@@ -309,7 +318,9 @@ fn main() {
     stdout.set_color(ColorSpec::new().set_fg(Some(Color::Green))).unwrap();
     writeln!(&mut stdout, "hello there!\n").unwrap();
     stdout.set_color(ColorSpec::new().set_fg(Some(Color::White))).unwrap();
-    
+
+
+
     ask_forever();
 }
 
@@ -347,6 +358,14 @@ mod tests {
         for _ in 0..1000 {
             let (a, b, res) = create_multiplication_exercise(-1000, 1001);
             assert_eq!(a * b, res);
+        }
+    }
+
+    #[test]
+    fn exponentiation() {
+        for _ in 0..1000 {
+            let (a, e, res) = create_exponentiation_exercise(0, 10);
+            assert_eq!(a.pow(e as u32), res);
         }
     }
 
