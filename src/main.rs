@@ -10,8 +10,6 @@ use std::io::Write;
 use termcolor::{Color, ColorChoice, ColorSpec, StandardStream, WriteColor};
 use std::io::BufRead;
 use std::io::BufReader;
-use std::fs::OpenOptions;
-use std::fs::remove_file;
 
 
 const NUM_OF_PRAISES: usize = 24;
@@ -331,7 +329,9 @@ mod tests {
 
     use super::*;
     use std::fs::File;
-
+    use std::fs::OpenOptions;
+    use std::fs::remove_file;
+    
     #[test]
     fn random_generator() {
         for _ in 0..1000 {
