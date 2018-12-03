@@ -10,6 +10,8 @@ use std::io::Write;
 use termcolor::{Color, ColorChoice, ColorSpec, StandardStream, WriteColor};
 use std::io::BufRead;
 use std::io::BufReader;
+use std::fs::OpenOptions;
+use std::fs::remove_file;
 
 
 const NUM_OF_PRAISES: usize = 24;
@@ -328,6 +330,7 @@ fn main() {
 mod tests {
 
     use super::*;
+    use std::fs::File;
 
     #[test]
     fn random_generator() {
@@ -371,17 +374,70 @@ mod tests {
 
     #[test]
     fn superscript() {
-        println!("x\u{00b9}, 2\u{00b3} 4\u{02075}");
-        println!("{}", format_superscript(10, 0));
-        println!("{}", format_superscript(10, 1));
-        println!("{}", format_superscript(10, 2));
-        println!("{}", format_superscript(10, 3));
-        println!("{}", format_superscript(10, 4));
-        println!("{}", format_superscript(10, 5));
-        println!("{}", format_superscript(10, 6));
-        println!("{}", format_superscript(10, 7));
-        println!("{}", format_superscript(10, 8));
-        println!("{}", format_superscript(10, 9));
+        assert_eq!("10⁰", format_superscript(10, 0));
+        assert_eq!("10¹", format_superscript(10, 1));
+        assert_eq!("10²", format_superscript(10, 2));
+        assert_eq!("10³", format_superscript(10, 3));
+        assert_eq!("10⁴", format_superscript(10, 4));
+        assert_eq!("10⁵", format_superscript(10, 5));
+        assert_eq!("10⁶", format_superscript(10, 6));
+        assert_eq!("10⁷", format_superscript(10, 7));
+        assert_eq!("10⁸", format_superscript(10, 8));
+        assert_eq!("10⁹", format_superscript(10, 9));
+    }
 
+    fn test_exercise(mock_stdin_path: &str, exercise: &Fn(i32, i32) -> (i32, i32, i32), min: i32, max: i32) {
+        let mut file = File::create(mock_stdin_path).expect("error creating mock file");
+        let (_, _, res) = exercise(min, max);
+        let str_repr = res.to_string();
+        let input: &[u8] = str_repr.as_bytes();
+        file.write(input).expect("filed to write number to file");
+
+        match OpenOptions::new().create(false).read(true).open(mock_stdin_path) {
+            Ok(ref mut file) => {
+                 match read_user_answer(BufReader::new(file)) {
+                     Ok(answer) => assert_eq!(answer, res),
+                     _ => panic!("failed to read mock answer")
+                 }
+            },
+            Err(err) => { panic!("Failed to open mock file: {}", err); }
+        }
+
+        remove_file(mock_stdin_path).expect("failed to remove mock file");
+    }
+
+    #[test]
+    fn user_interaction_addition() {
+        for _ in 1..1000 {
+            let path = "mock.addition.stdin";
+            test_exercise(path, &create_addition_exercise, -1000, 1000);
+        }
+
+    }
+
+    #[test]
+    fn user_interaction_subtraction() {
+        for _ in 1..1000 {
+            let path = "mock.subtraction.stdin";
+            test_exercise(path, &create_subtraction_exercise, -1000, 1000);
+        }
+
+    }
+
+    #[test]
+    fn user_interaction_multiplication() {
+        for _ in 1..1000 {
+            let path = "mock.multiplication.stdin";
+            test_exercise(path, &create_multiplication_exercise, -1000, 1000);
+        }
+
+    }
+
+    #[test]
+    fn user_interaction_exponentiation() {
+        for _ in 1..1000 {
+            let path = "mock.exponentiation.stdin";
+            test_exercise(path, &create_exponentiation_exercise, 0, 10);
+        }
     }
 }
