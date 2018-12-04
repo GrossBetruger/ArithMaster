@@ -129,12 +129,21 @@ fn say_super_praise(printable: &str) -> String {
     format!("{}", printable.purple())
 }
 
+fn bracket_negative(num: i32) -> String {
+    match num < 0 {
+        true => format!("({})", num),
+        false => format!("{}", num)
+    }
+}
+
 fn format_question(operation: &str, operand_a: i32, operand_b: i32) -> String {
     match operation {
         "^" => {format!("what is {}?", format_superscript(operand_a, operand_b))}
-        _ => format!("what is ({}) {} ({})?", operand_a, operation, operand_b)
+        _ => {
+            format!("what is {} {} {}?", bracket_negative(operand_a),
+                    operation, bracket_negative(operand_b))
+        }
     }
-
 }
 
 fn read_user_answer<R: BufRead>(mut reader: R) -> Result<i32, ParseIntError> {
@@ -331,7 +340,7 @@ mod tests {
     use std::fs::File;
     use std::fs::OpenOptions;
     use std::fs::remove_file;
-    
+
     #[test]
     fn random_generator() {
         for _ in 0..1000 {
@@ -439,5 +448,35 @@ mod tests {
             let path = "mock.exponentiation.stdin";
             test_exercise(path, &create_exponentiation_exercise, 0, 10);
         }
+    }
+
+    #[test]
+    fn question_formatting_addition() {
+        assert_eq!("what is 6 + (-10)?", format_question("+", 6, -10));
+    }
+
+    #[test]
+    fn question_formatting_subtraction() {
+        assert_eq!("what is 3 - (-4)?", format_question("-", 3, -4));
+    }
+
+    #[test]
+    fn question_formatting_subtraction_both_negatives() {
+        assert_eq!("what is (-1) - (-3)?", format_question("-", -1, -3));
+    }
+
+    #[test]
+    fn question_formatting_multiplication_no_negatives() {
+        assert_eq!("what is 3 * 2?", format_question("*", 3, 2));
+    }
+
+    #[test]
+    fn question_formatting_multiplication() {
+        assert_eq!("what is (-8) * 4?", format_question("*", -8, 4));
+    }
+
+    #[test]
+    fn question_formatting_exponentiation() {
+        assert_eq!("what is 1²?", format_question("^", 1, 2));
     }
 }
