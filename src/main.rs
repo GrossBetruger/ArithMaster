@@ -219,7 +219,7 @@ fn ask_question(exercise_type: &Exercise, difficulty: &Difficulty) -> bool {
     let (exp_min, exp_max) = match difficulty {
         Difficulty::Easy => (0, 3),
         Difficulty::Medium => (3, 6),
-        Difficulty::Hard => (6, 8),
+        Difficulty::Hard => (6, 7),
     };
 
     match exercise_type {
