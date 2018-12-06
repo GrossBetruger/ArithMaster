@@ -513,4 +513,13 @@ mod tests {
     fn question_formatting_exponentiation() {
         assert_eq!("what is 1²?", format_question("^", 1, 2));
     }
+
+    #[test]
+    fn answer_f34_precision() {
+        assert!(check_answer(0.66, 2./3.), "0.66 did not equal to 2/3");
+        assert!(check_answer(-0.33, -1./3.), "-0.33 did not equal to -1/3");
+        assert!(check_answer(-0.66, 2./-3.), "-0.66 did not equal to 2/-3");
+        assert!(! check_answer(0.65, 2./3.), "0.65 equaled 2/3");
+        assert!(check_answer(1.25, 10./8.), "1.25 did not equal 10/8");
+    }
 }
