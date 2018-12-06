@@ -50,6 +50,7 @@ enum Exercise {
     Subtraction,
     Multiplication,
     Exponentiation,
+    Division,
 }
 
 #[derive(Debug)]
@@ -85,6 +86,15 @@ fn create_exponentiation_exercise(min: i32, max: i32) -> (i32, i32, f32) {
     let a = generate_random(0, 11);
     let e = generate_random(min, max).abs();
     return (a, e, a.pow(e as u32) as f32);
+}
+
+fn create_division_exercise(min: i32, max: i32) -> (i32, i32, f32) {
+    let a = generate_random(min as i32, max as i32);
+    let b = generate_random(min as i32, max as i32);
+    if b == 0 {
+        return create_division_exercise(min, max);
+    }
+    return (a, b, a as f32 / b as f32);
 }
 
 fn format_superscript(base: i32, exponent: i32) -> String {
@@ -238,6 +248,18 @@ fn ask_question(exercise_type: &Exercise, difficulty: &Difficulty) -> bool {
                 return false // ask_question(exercise_type, difficulty);
             }
         }
+        Exercise::Division=> {
+            if let Ok(result) = interact_with_user(
+                "/",
+                mul_div_min,
+                mul_div_max,
+                &create_division_exercise,
+            ) {
+                return result;
+            } else {
+                return false // ask_question(exercise_type, difficulty);
+            }
+        }
         Exercise::Exponentiation=> {
             if let Ok(result) = interact_with_user(
                 "^",
@@ -312,10 +334,11 @@ fn ask_forever() {
             }
         }
         //        change exercise type on random
-        match generate_random(0, 4) {
+        match generate_random(0, 5) {
             0 => current_question_type = Exercise::Addition,
             1 => current_question_type = Exercise::Multiplication,
             2 => current_question_type = Exercise::Exponentiation,
+            3 => current_question_type = Exercise::Division,
             _ => current_question_type = Exercise::Subtraction,
         }
     }
@@ -445,6 +468,14 @@ mod tests {
         for _ in 1..1000 {
             let path = "mock.exponentiation.stdin";
             test_exercise(path, &create_exponentiation_exercise, 0, 10);
+        }
+    }
+
+    #[test]
+    fn user_interaction_division() {
+        for _ in 1..1000 {
+            let path = "mock.division.stdin";
+            test_exercise(path, &create_division_exercise, -100, 100);
         }
     }
 
