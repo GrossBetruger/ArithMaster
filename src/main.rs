@@ -5,11 +5,11 @@ extern crate rand;
 use colored::*;
 use rand::Rng;
 use std::io;
-use std::num::ParseIntError;
 use std::io::Write;
 use termcolor::{Color, ColorChoice, ColorSpec, StandardStream, WriteColor};
 use std::io::BufRead;
 use std::io::BufReader;
+use std::num::ParseFloatError;
 
 
 const NUM_OF_PRAISES: usize = 24;
@@ -63,28 +63,28 @@ fn generate_random(min: i32, max: i32) -> i32 {
     rand::thread_rng().gen_range(min, max)
 }
 
-fn create_addition_exercise(min: i32, max: i32) -> (i32, i32, i32) {
+fn create_addition_exercise(min: i32, max: i32) -> (i32, i32, f32) {
     let a = generate_random(min, max);
     let b = generate_random(min, max);
-    return (a, b, a + b);
+    return (a, b, (a + b) as f32);
 }
 
-fn create_subtraction_exercise(min: i32, max: i32) -> (i32, i32, i32) {
+fn create_subtraction_exercise(min: i32, max: i32) -> (i32, i32, f32) {
     let a = generate_random(min, max);
     let b = generate_random(min, max);
-    return (a, b, a - b);
+    return (a, b, (a - b) as f32);
 }
 
-fn create_multiplication_exercise(min: i32, max: i32) -> (i32, i32, i32) {
-    let a = generate_random(min, max);
-    let b = generate_random(min, max);
-    return (a, b, a * b);
+fn create_multiplication_exercise(min: i32, max: i32) -> (i32, i32, f32) {
+    let a = generate_random(min as i32, max as i32);
+    let b = generate_random(min as i32, max as i32);
+    return (a, b, (a * b) as f32);
 }
 
-fn create_exponentiation_exercise(min: i32, max: i32) -> (i32, i32, i32) {
+fn create_exponentiation_exercise(min: i32, max: i32) -> (i32, i32, f32) {
     let a = generate_random(0, 11);
     let e = generate_random(min, max).abs();
-    return (a, e, a.pow(e as u32));
+    return (a, e, a.pow(e as u32) as f32);
 }
 
 fn format_superscript(base: i32, exponent: i32) -> String {
@@ -146,13 +146,13 @@ fn format_question(operation: &str, operand_a: i32, operand_b: i32) -> String {
     }
 }
 
-fn read_user_answer<R: BufRead>(mut reader: R) -> Result<i32, ParseIntError> {
+fn read_user_answer<R: BufRead>(mut reader: R) -> Result<f32, ParseFloatError> {
 //    let mut answer = String::new();
     let mut answer = vec![];
     reader
         .read_until(0xa, &mut answer)
         .expect("failed to read your answer");
-    String::from_utf8_lossy(&answer).trim().parse::<i32>()
+    String::from_utf8_lossy(&answer).trim().parse::<f32>()
 }
 
 
@@ -160,8 +160,8 @@ fn interact_with_user(
     operation: &str,
     min: i32,
     max: i32,
-    exercise: &Fn(i32, i32) -> (i32, i32, i32),
-) -> Result<bool, ParseIntError> {
+    exercise: &Fn(i32, i32) -> (i32, i32, f32),
+) -> Result<bool, ParseFloatError> {
     let (operand_a, operand_b, solution) = exercise(min, max);
     println!("{}", format_question(operation, operand_a, operand_b));
 
@@ -169,7 +169,7 @@ fn interact_with_user(
     let input = read_user_answer(reader);
     match input {
         Ok(num) => {
-            if num == solution {
+            if num as f32 == solution {
                 print_spaced(&say_minor_praise("very good!"));
                 return Ok(true);
             } else {
@@ -181,9 +181,9 @@ fn interact_with_user(
                 return Ok(false);
             }
         }
-        Err(parse_int_err) => {
+        Err(parse_float_err) => {
             print_spaced(&warn("I don't speak that language"));
-            Err(parse_int_err)
+            Err(parse_float_err)
         }
     }
 }
@@ -328,8 +328,6 @@ fn main() {
     writeln!(&mut stdout, "hello there!\n").unwrap();
     stdout.set_color(ColorSpec::new().set_fg(Some(Color::White))).unwrap();
 
-
-
     ask_forever();
 }
 
@@ -353,7 +351,7 @@ mod tests {
     fn addition() {
         for _ in 0..1000 {
             let (a, b, res) = create_addition_exercise(-1000, 1001);
-            assert_eq!(a + b, res);
+            assert_eq!((a + b) as f32, res);
         }
     }
 
@@ -361,7 +359,7 @@ mod tests {
     fn subtraction() {
         for _ in 0..1000 {
             let (a, b, res) = create_subtraction_exercise(-1000, 1001);
-            assert_eq!(a - b, res);
+            assert_eq!((a - b) as f32, res);
         }
     }
 
@@ -369,7 +367,7 @@ mod tests {
     fn multiplication() {
         for _ in 0..1000 {
             let (a, b, res) = create_multiplication_exercise(-1000, 1001);
-            assert_eq!(a * b, res);
+            assert_eq!((a * b) as f32, res);
         }
     }
 
@@ -377,7 +375,7 @@ mod tests {
     fn exponentiation() {
         for _ in 0..1000 {
             let (a, e, res) = create_exponentiation_exercise(0, 10);
-            assert_eq!(a.pow(e as u32), res);
+            assert_eq!((a.pow(e as u32)) as f32, res);
         }
     }
 
@@ -395,7 +393,7 @@ mod tests {
         assert_eq!("10⁹", format_superscript(10, 9));
     }
 
-    fn test_exercise(mock_stdin_path: &str, exercise: &Fn(i32, i32) -> (i32, i32, i32), min: i32, max: i32) {
+    fn test_exercise(mock_stdin_path: &str, exercise: &Fn(i32, i32) -> (i32, i32, f32), min: i32, max: i32) {
         let mut file = File::create(mock_stdin_path).expect("error creating mock file");
         let (_, _, res) = exercise(min, max);
         let str_repr = res.to_string();
