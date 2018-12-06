@@ -18,6 +18,8 @@ const SUPER_PRAISES_THRESHOLD: u8 = 45;
 
 const STREAK_CONSTANT: u8 = 5;
 
+const EPSILON: f32 = 0.01;
+
 const PRAISES: [&str; NUM_OF_PRAISES] = [
     "not bad!",
     "not too shabby...",
@@ -165,6 +167,9 @@ fn read_user_answer<R: BufRead>(mut reader: R) -> Result<f32, ParseFloatError> {
     String::from_utf8_lossy(&answer).trim().parse::<f32>()
 }
 
+fn check_answer(user_num: f32, solution: f32) -> bool {
+    (user_num - solution).abs() < EPSILON
+}
 
 fn interact_with_user(
     operation: &str,
@@ -179,7 +184,7 @@ fn interact_with_user(
     let input = read_user_answer(reader);
     match input {
         Ok(num) => {
-            if num as f32 == solution {
+            if check_answer(num, solution) {
                 print_spaced(&say_minor_praise("very good!"));
                 return Ok(true);
             } else {
