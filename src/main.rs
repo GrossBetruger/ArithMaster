@@ -1,16 +1,15 @@
-extern crate termcolor;
 extern crate colored;
 extern crate rand;
+extern crate termcolor;
 
 use colored::*;
 use rand::Rng;
 use std::io;
-use std::io::Write;
-use termcolor::{Color, ColorChoice, ColorSpec, StandardStream, WriteColor};
 use std::io::BufRead;
 use std::io::BufReader;
+use std::io::Write;
 use std::num::ParseFloatError;
-
+use termcolor::{Color, ColorChoice, ColorSpec, StandardStream, WriteColor};
 
 const NUM_OF_PRAISES: usize = 24;
 
@@ -101,18 +100,17 @@ fn create_division_exercise(min: i32, max: i32) -> (i32, i32, f32) {
 
 fn format_superscript(base: i32, exponent: i32) -> String {
     match exponent {
-        0 => {return format!("{}{}", base, "\u{02070}")},
-        1 => {return format!("{}{}", base, "\u{00b9}")},
-        2 => {return format!("{}{}", base, "\u{00b2}")},
-        3 => {return format!("{}{}", base, "\u{00b3}")},
-        4 => {return format!("{}{}", base, "\u{02074}")},
-        5 => {return format!("{}{}", base, "\u{02075}")},
-        6 => {return format!("{}{}", base, "\u{02076}")},
-        7 => {return format!("{}{}", base, "\u{02077}")},
-        8 => {return format!("{}{}", base, "\u{02078}")},
-        9 => {return format!("{}{}", base, "\u{02079}")},
+        0 => return format!("{}{}", base, "\u{02070}"),
+        1 => return format!("{}{}", base, "\u{00b9}"),
+        2 => return format!("{}{}", base, "\u{00b2}"),
+        3 => return format!("{}{}", base, "\u{00b3}"),
+        4 => return format!("{}{}", base, "\u{02074}"),
+        5 => return format!("{}{}", base, "\u{02075}"),
+        6 => return format!("{}{}", base, "\u{02076}"),
+        7 => return format!("{}{}", base, "\u{02077}"),
+        8 => return format!("{}{}", base, "\u{02078}"),
+        9 => return format!("{}{}", base, "\u{02079}"),
         _ => {}
-
     }
     "nothing".into()
 }
@@ -144,22 +142,24 @@ fn say_super_praise(printable: &str) -> String {
 fn bracket_negative(num: i32) -> String {
     match num < 0 {
         true => format!("({})", num),
-        false => format!("{}", num)
+        false => format!("{}", num),
     }
 }
 
 fn format_question(operation: &str, operand_a: i32, operand_b: i32) -> String {
     match operation {
-        "^" => {format!("what is {}?", format_superscript(operand_a, operand_b))}
-        _ => {
-            format!("what is {} {} {}?", bracket_negative(operand_a),
-                    operation, bracket_negative(operand_b))
-        }
+        "^" => format!("what is {}?", format_superscript(operand_a, operand_b)),
+        _ => format!(
+            "what is {} {} {}?",
+            bracket_negative(operand_a),
+            operation,
+            bracket_negative(operand_b)
+        ),
     }
 }
 
 fn read_user_answer<R: BufRead>(mut reader: R) -> Result<f32, ParseFloatError> {
-//    let mut answer = String::new();
+    //    let mut answer = String::new();
     let mut answer = vec![];
     reader
         .read_until(0xa, &mut answer)
@@ -229,7 +229,7 @@ fn ask_question(exercise_type: &Exercise, difficulty: &Difficulty) -> bool {
             {
                 return result;
             } else {
-                return false //ask_question(exercise_type, difficulty);
+                return false; //ask_question(exercise_type, difficulty);
             }
         }
         Exercise::Subtraction => {
@@ -238,7 +238,7 @@ fn ask_question(exercise_type: &Exercise, difficulty: &Difficulty) -> bool {
             {
                 return result;
             } else {
-                return false //ask_question(exercise_type, difficulty);
+                return false; //ask_question(exercise_type, difficulty);
             }
         }
         Exercise::Multiplication => {
@@ -250,31 +250,25 @@ fn ask_question(exercise_type: &Exercise, difficulty: &Difficulty) -> bool {
             ) {
                 return result;
             } else {
-                return false // ask_question(exercise_type, difficulty);
+                return false; // ask_question(exercise_type, difficulty);
             }
         }
-        Exercise::Division=> {
-            if let Ok(result) = interact_with_user(
-                "/",
-                mul_div_min,
-                mul_div_max,
-                &create_division_exercise,
-            ) {
+        Exercise::Division => {
+            if let Ok(result) =
+                interact_with_user("/", mul_div_min, mul_div_max, &create_division_exercise)
+            {
                 return result;
             } else {
-                return false // ask_question(exercise_type, difficulty);
+                return false; // ask_question(exercise_type, difficulty);
             }
         }
-        Exercise::Exponentiation=> {
-            if let Ok(result) = interact_with_user(
-                "^",
-                exp_min,
-                exp_max,
-                &create_exponentiation_exercise,
-            ) {
+        Exercise::Exponentiation => {
+            if let Ok(result) =
+                interact_with_user("^", exp_min, exp_max, &create_exponentiation_exercise)
+            {
                 return result;
             } else {
-                return false//ask_question(exercise_type, difficulty);
+                return false; //ask_question(exercise_type, difficulty);
             }
         }
     }
@@ -350,11 +344,15 @@ fn ask_forever() {
 }
 
 fn main() {
-//    set stdout to colored (for windows systems)
+    //    set stdout to colored (for windows systems)
     let mut stdout = StandardStream::stdout(ColorChoice::Always);
-    stdout.set_color(ColorSpec::new().set_fg(Some(Color::Green))).unwrap();
+    stdout
+        .set_color(ColorSpec::new().set_fg(Some(Color::Green)))
+        .unwrap();
     writeln!(&mut stdout, "hello there!\n").unwrap();
-    stdout.set_color(ColorSpec::new().set_fg(Some(Color::White))).unwrap();
+    stdout
+        .set_color(ColorSpec::new().set_fg(Some(Color::White)))
+        .unwrap();
 
     ask_forever();
 }
@@ -363,9 +361,9 @@ fn main() {
 mod tests {
 
     use super::*;
+    use std::fs::remove_file;
     use std::fs::File;
     use std::fs::OpenOptions;
-    use std::fs::remove_file;
 
     #[test]
     fn random_generator() {
@@ -421,21 +419,33 @@ mod tests {
         assert_eq!("10⁹", format_superscript(10, 9));
     }
 
-    fn test_exercise(mock_stdin_path: &str, exercise: &Fn(i32, i32) -> (i32, i32, f32), min: i32, max: i32) {
+    fn test_exercise(
+        mock_stdin_path: &str,
+        exercise: &Fn(i32, i32) -> (i32, i32, f32),
+        min: i32,
+        max: i32,
+    ) {
         let mut file = File::create(mock_stdin_path).expect("error creating mock file");
         let (_, _, res) = exercise(min, max);
         let str_repr = res.to_string();
         let input: &[u8] = str_repr.as_bytes();
         file.write(input).expect("filed to write number to file");
 
-        match OpenOptions::new().create(false).read(true).open(mock_stdin_path) {
-            Ok(ref mut file) => {
-                 match read_user_answer(BufReader::new(file)) {
-                     Ok(answer) => assert_eq!(answer, res),
-                     _ => panic!("failed to read mock answer")
-                 }
+        match OpenOptions::new()
+            .create(false)
+            .read(true)
+            .open(mock_stdin_path)
+        {
+            Ok(ref mut file) => match read_user_answer(BufReader::new(file)) {
+                Ok(answer) => assert!(
+                    check_answer(answer, res),
+                    format!("answer: '{}' didn't match result '{}'", answer, res)
+                ),
+                _ => panic!("failed to read mock answer"),
             },
-            Err(err) => { panic!("Failed to open mock file: {}", err); }
+            Err(err) => {
+                panic!("Failed to open mock file: {}", err);
+            }
         }
 
         remove_file(mock_stdin_path).expect("failed to remove mock file");
@@ -447,7 +457,6 @@ mod tests {
             let path = "mock.addition.stdin";
             test_exercise(path, &create_addition_exercise, -1000, 1000);
         }
-
     }
 
     #[test]
@@ -456,7 +465,6 @@ mod tests {
             let path = "mock.subtraction.stdin";
             test_exercise(path, &create_subtraction_exercise, -1000, 1000);
         }
-
     }
 
     #[test]
@@ -465,7 +473,6 @@ mod tests {
             let path = "mock.multiplication.stdin";
             test_exercise(path, &create_multiplication_exercise, -1000, 1000);
         }
-
     }
 
     #[test]
@@ -516,10 +523,10 @@ mod tests {
 
     #[test]
     fn answer_f34_precision() {
-        assert!(check_answer(0.66, 2./3.), "0.66 did not equal to 2/3");
-        assert!(check_answer(-0.33, -1./3.), "-0.33 did not equal to -1/3");
-        assert!(check_answer(-0.66, 2./-3.), "-0.66 did not equal to 2/-3");
-        assert!(! check_answer(0.65, 2./3.), "0.65 equaled 2/3");
-        assert!(check_answer(1.25, 10./8.), "1.25 did not equal 10/8");
+        assert!(check_answer(0.66, 2. / 3.), "0.66 did not equal to 2/3");
+        assert!(check_answer(-0.33, -1. / 3.), "-0.33 did not equal to -1/3");
+        assert!(check_answer(-0.66, 2. / -3.), "-0.66 did not equal to 2/-3");
+        assert!(!check_answer(0.65, 2. / 3.), "0.65 equaled 2/3");
+        assert!(check_answer(1.25, 10. / 8.), "1.25 did not equal 10/8");
     }
 }
