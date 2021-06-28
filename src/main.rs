@@ -2,13 +2,15 @@ extern crate colored;
 extern crate rand;
 extern crate termcolor;
 
-use colored::*;
-use rand::Rng;
 use std::io;
 use std::io::BufRead;
 use std::io::BufReader;
 use std::io::Write;
 use std::num::ParseFloatError;
+
+use colored::*;
+use rand::Rng;
+use rand::seq::SliceRandom;
 use termcolor::{Color, ColorChoice, ColorSpec, StandardStream, WriteColor};
 
 const NUM_OF_PRAISES: usize = 24;
@@ -52,6 +54,7 @@ enum Exercise {
     Multiplication,
     Exponentiation,
     Division,
+    Rooting,
 }
 
 #[derive(Debug)]
@@ -96,6 +99,14 @@ fn create_division_exercise(min: i32, max: i32) -> (i32, i32, f32) {
         return create_division_exercise(min, max);
     }
     return (a, b, a as f32 / b as f32);
+}
+
+fn create_rooting_exercise(min: i32, max: i32) -> (i32, i32, f32) {
+    let a = generate_random(min, max);
+    let roots: Vec<u32> = vec![2, 3];
+    let chosen_root = roots.choose(&mut rand::thread_rng()).unwrap();
+    let rootable = a.pow(*chosen_root);
+    return (rootable, *chosen_root as i32, a as f32);
 }
 
 fn format_superscript(base: i32, exponent: i32) -> String {
@@ -149,6 +160,7 @@ fn bracket_negative(num: i32) -> String {
 fn format_question(operation: &str, operand_a: i32, operand_b: i32) -> String {
     match operation {
         "^" => format!("what is {}?", format_superscript(operand_a, operand_b)),
+        "root" => format!("what is {} root {}?", operand_a, operand_b),
         _ => format!(
             "what is {} {} {}?",
             bracket_negative(operand_a),
@@ -222,6 +234,12 @@ fn ask_question(exercise_type: &Exercise, difficulty: &Difficulty) -> bool {
         Difficulty::Hard => (6, 7),
     };
 
+    let (root_min, root_max) = match difficulty {
+        Difficulty::Easy => (1, 10),
+        Difficulty::Medium => (10, 50),
+        Difficulty::Hard => (50, 100),
+    };
+
     match exercise_type {
         Exercise::Addition => {
             if let Ok(result) =
@@ -270,9 +288,18 @@ fn ask_question(exercise_type: &Exercise, difficulty: &Difficulty) -> bool {
             } else {
                 return false; //ask_question(exercise_type, difficulty);
             }
+        },
+        Exercise::Rooting =>
+            if let Ok(result) =
+                interact_with_user("root", root_min, root_max, &create_rooting_exercise)
+            {
+                return result;
+            } else {
+                return false; //ask_question(exercise_type, difficulty);
+            }
         }
-    }
 }
+
 
 fn ask_forever() {
     let mut streak = 0;
@@ -333,11 +360,12 @@ fn ask_forever() {
             }
         }
         //        change exercise type on random
-        match generate_random(0, 5) {
+        match rand::thread_rng().gen_range(0, 6) {
             0 => current_question_type = Exercise::Addition,
             1 => current_question_type = Exercise::Multiplication,
             2 => current_question_type = Exercise::Exponentiation,
             3 => current_question_type = Exercise::Division,
+            4 => current_question_type = Exercise::Rooting,
             _ => current_question_type = Exercise::Subtraction,
         }
     }
@@ -359,11 +387,11 @@ fn main() {
 
 #[cfg(test)]
 mod tests {
-
-    use super::*;
-    use std::fs::remove_file;
     use std::fs::File;
     use std::fs::OpenOptions;
+    use std::fs::remove_file;
+
+    use super::*;
 
     #[test]
     fn random_generator() {
@@ -496,7 +524,7 @@ mod tests {
         assert_eq!("what is 6 + (-10)?", format_question("+", 6, -10));
     }
 
-    #[test]
+        #[test]
     fn question_formatting_subtraction() {
         assert_eq!("what is 3 - (-4)?", format_question("-", 3, -4));
     }
