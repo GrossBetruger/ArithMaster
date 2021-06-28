@@ -187,7 +187,7 @@ fn interact_with_user(
     operation: &str,
     min: i32,
     max: i32,
-    exercise: &Fn(i32, i32) -> (i32, i32, f32),
+    exercise: &dyn Fn(i32, i32) -> (i32, i32, f32),
 ) -> Result<bool, ParseFloatError> {
     let (operand_a, operand_b, solution) = exercise(min, max);
     println!("{}", format_question(operation, operand_a, operand_b));
@@ -449,7 +449,7 @@ mod tests {
 
     fn test_exercise(
         mock_stdin_path: &str,
-        exercise: &Fn(i32, i32) -> (i32, i32, f32),
+        exercise: &dyn Fn(i32, i32) -> (i32, i32, f32),
         min: i32,
         max: i32,
     ) {
@@ -467,8 +467,7 @@ mod tests {
             Ok(ref mut file) => match read_user_answer(BufReader::new(file)) {
                 Ok(answer) => assert!(
                     check_answer(answer, res),
-                    format!("answer: '{}' didn't match result '{}'", answer, res)
-                ),
+                    "answer: '{}' didn't match result '{}'", answer, res),
                 _ => panic!("failed to read mock answer"),
             },
             Err(err) => {
